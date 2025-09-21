@@ -50,7 +50,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 env = [
     "MAX_IMG_SIZE=5",
-    "ALLOWED_CONTENT_TYPES=['image/jpeg', 'image/png', 'image/gif']",
+    "ALLOWED_CONTENT_TYPES=[\"image/jpeg\", \"image/png\", \"image/gif\"]",
     "POSTGRES_HOST=localhost",
     "POSTGRES_USER=test_user",
     "POSTGRES_PASSWORD=test_password",
