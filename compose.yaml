@@ -1,0 +1,52 @@
+services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+      - image_storage:/app/uploaded_images
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/image_db
+      - PYTHONPATH=/app
+    depends_on:
+      - db
+      - rabbitmq
+    command: uvicorn app.app:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    build: .
+    volumes:
+      - image_storage:/app/uploaded_images
+    container_name: image-worker
+    command: python -u worker.py
+    depends_on:
+      - db
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  db:
+    image: postgres:15-alpine
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  rabbitmq_data:
+  postgres_data:
+  image_storage:

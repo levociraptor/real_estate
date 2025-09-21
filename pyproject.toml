@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "real-estate-test-task"
+version = "0.1.0"
+description = ""
+authors = ["Lev Uspensky"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["all"], version = "^0.116.2"}
+aiofile = "^3.9.0"
+sqlalchemy = "^2.0.43"
+asyncpg = "^0.30.0"
+alembic = "^1.16.5"
+aio-pika = "^9.5.7"
+pillow = "^11.3.0"
+python-json-logger = "^3.3.0"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.0.0"
+flake8-bugbear = "^24.4.26"
+flake8-comprehensions = "^3.14.0"
+flake8-pyproject = "^1.2.3"
+flake8-print = "^5.0.0"
+isort = "^6.0.1"
+mypy = "^1.18.2"
+pytest = "^8.4.2"
+pytest-asyncio = "^1.2.0"
+pytest-mock = "^3.15.1"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = [
+    "E203",  # конфликтует с black
+    "W503",  # "line break before binary operator"
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "migrations",
+    "tests",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
