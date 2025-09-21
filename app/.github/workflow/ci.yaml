@@ -56,9 +56,6 @@ jobs:
       - name: Type check with mypy
         run: poetry run mypy .
 
-      # - name: Run tests
-      #   env:
-      #     DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
-      #     RABBIT_URL: amqp://guest:guest@localhost:5672/
-      #   run: |
-      #     poetry run pytest --cov=app --cov-report=term-missing
+      - name: Run tests
+        run: |
+          poetry run pytest --cov=app --cov-report=term-missing
