@@ -10,7 +10,11 @@ class ImageRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def add_image(self, content_type: str, original_filename: str) -> ImageSchema:
+    async def add_image(
+            self,
+            content_type: str,
+            original_filename: str | None,
+    ) -> ImageSchema:
         img = Image(
             original_filename=original_filename,
             content_type=content_type,

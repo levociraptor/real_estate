@@ -13,7 +13,9 @@ health_check_router = APIRouter(prefix="/health", tags=["health_check"])
 
 
 @health_check_router.get("/")
-async def health_sheck(session: Annotated[AsyncSession, Depends(get_async_db_session)]):
+async def health_sheck(
+    session: Annotated[AsyncSession, Depends(get_async_db_session)]
+):
     health_check_service = HealthCheckService(session=session)
     errors = []
     try:

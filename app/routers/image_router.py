@@ -84,7 +84,10 @@ async def get_image(
         logger.error("Image not saved correctly.", exc_info=e)
         raise HTTPException(
             status_code=424,
-            detail="Thumbnail generation failed. Please try uploading the image again.",
+            detail=(
+                "Thumbnail generation failed. "
+                "Please try uploading the image again."
+            )
         )
     except ImageNotProcessedYetError as e:
         logger.error("Image not ready yet.", exc_info=e)

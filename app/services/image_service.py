@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.exceptions import (FileTooBig, ImageNotProcessedYetError,
                             ImageSaveWithError, NotAllowedContentType)
+from app.models import ImageStatus
 from app.repositories.image_repository import ImageRepository
 from app.schemas.image_schemas import ImageSchema
-from app.models import ImageStatus
 from app.settings import settings
 
 
@@ -23,6 +23,8 @@ class ImageService:
         content_type = image.content_type
         if content_type not in self.allowed_content_types:
             raise NotAllowedContentType
+        if image.size is None:
+            raise ValueError("File size is unknown")
         if image.size > self.max_file_size:
             raise FileTooBig
         image.file.seek(0)

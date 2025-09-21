@@ -1,13 +1,14 @@
-import pytest
 import json
 import uuid
-from pathlib import Path
-from unittest.mock import AsyncMock, patch
-from PIL import Image as PILImage
 from contextlib import asynccontextmanager
+from pathlib import Path
+from unittest.mock import AsyncMock, Mock, patch
 
-from worker import resize_image, generate_thumbnails, process_message
+import pytest
+from PIL import Image as PILImage
+
 from app.models import Image, ImageStatus
+from worker import generate_thumbnails, process_message, resize_image
 
 
 def test_resize_image_creates_thumbnail(tmp_path: Path):
@@ -60,8 +61,12 @@ async def test_process_message_success(tmp_path):
     fake_id = str(uuid.uuid4())
     fake_img = Image(id=fake_id, status=ImageStatus.NEW)
 
+    mock_result = Mock()
+    mock_result.scalar_one_or_none.return_value = fake_img
+    mock_result.scalar_one.return_value = fake_img
+
     mock_session = AsyncMock()
-    mock_session.get.return_value = fake_img
+    mock_session.execute.return_value = mock_result
     mock_session.commit = AsyncMock()
 
     @asynccontextmanager
@@ -81,8 +86,13 @@ async def test_process_message_success(tmp_path):
 @pytest.mark.asyncio
 async def test_process_message_image_not_found():
     fake_id = str(uuid.uuid4())
+
+    mock_result = Mock()
+    mock_result.scalar_one_or_none.return_value = None
+
     mock_session = AsyncMock()
-    mock_session.get.return_value = None
+    mock_session.execute.return_value = mock_result
+
     mock_session.commit = AsyncMock()
 
     @asynccontextmanager
@@ -93,5 +103,5 @@ async def test_process_message_image_not_found():
         msg = DummyMessage({"image_id": fake_id})
         await process_message(msg)
 
-    mock_session.get.assert_awaited_once()
+    mock_session.execute.assert_awaited_once()
     mock_session.commit.assert_not_awaited()

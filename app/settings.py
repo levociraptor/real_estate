@@ -41,7 +41,10 @@ class Settings(BaseSettings):
         db = self.POSTGRES_DB
         return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
 
 settings = Settings()

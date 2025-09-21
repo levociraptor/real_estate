@@ -1,11 +1,12 @@
-import uuid
 import datetime
+import uuid
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+
+from app.models import Image, ImageStatus
 from app.repositories.image_repository import ImageRepository
 from app.schemas.image_schemas import ImageSchema
-from app.models import ImageStatus, Image
 
 
 @pytest.mark.asyncio

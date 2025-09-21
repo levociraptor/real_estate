@@ -5,6 +5,7 @@ from pathlib import Path
 
 import aio_pika
 from PIL import Image as PILImage
+from sqlalchemy import select
 
 from app.database import session_gen
 from app.exceptions import ImageNotFound
@@ -23,11 +24,23 @@ async def generate_thumbnails(image_id: str) -> None:
         raise ImageNotFound(f"Original image not found: {original_path}")
 
     for resolution in settings.THUMBNAILS_RESOLUTION:
-        thumb_path = Path(settings.PATH_TO_IMAGE) / f"{image_id}_{resolution}.jpg"
-        await asyncio.to_thread(resize_image, original_path, thumb_path, resolution)
+        thumb_path = (
+            Path(settings.PATH_TO_IMAGE)
+            / f"{image_id}_{resolution}.jpg"
+        )
+        await asyncio.to_thread(
+            resize_image,
+            original_path,
+            thumb_path,
+            resolution,
+        )
 
 
-def resize_image(original_path: Path, thumb_path: Path, resolution: int) -> None:
+def resize_image(
+        original_path: Path,
+        thumb_path: Path,
+        resolution: int,
+) -> None:
 
     with PILImage.open(original_path) as img:
         img = img.convert("RGB")
@@ -36,7 +49,9 @@ def resize_image(original_path: Path, thumb_path: Path, resolution: int) -> None
         logger.info(f"Thumbnail saved: {thumb_path}")
 
 
-async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None:
+async def process_message(
+        message: aio_pika.abc.AbstractIncomingMessage,
+) -> None:
     async with message.process():
         body = json.loads(message.body.decode())
         image_id = body["image_id"]
@@ -44,7 +59,9 @@ async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None
         logger.info(f"Processing image {image_id}")
 
         async with session_gen() as session:
-            img = await session.get(Image, image_id)
+            stmt = select(Image).where(Image.id == image_id)
+            result = await session.execute(stmt)
+            img = result.scalar_one_or_none()
             if not img:
                 logger.error(f"Image {image_id} not found")
                 return
@@ -56,7 +73,9 @@ async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None
             await generate_thumbnails(image_id)
 
             async with session_gen() as session:
-                img = await session.get(Image, image_id)
+                stmt = select(Image).where(Image.id == image_id)
+                result = await session.execute(stmt)
+                img = result.scalar_one()
                 img.status = ImageStatus.DONE
                 await session.commit()
 
@@ -64,7 +83,9 @@ async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None
 
         except Exception as e:
             async with session_gen() as session:
-                img = await session.get(Image, image_id)
+                stmt = select(Image).where(Image.id == image_id)
+                result = await session.execute(stmt)
+                img = result.scalar_one()
                 img.status = ImageStatus.ERROR
                 await session.commit()
             logger.error(f"[!] Error processing {image_id}:", exc_info=e)

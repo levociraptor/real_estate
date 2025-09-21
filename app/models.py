@@ -4,8 +4,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import TIMESTAMP, Enum, String
 from sqlalchemy.dialects.postgresql import UUID as AlchemyUUID
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
 
@@ -16,7 +15,8 @@ class ImageStatus(PyEnum):
     ERROR = "ERROR"
 
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 
 class Image(Base):

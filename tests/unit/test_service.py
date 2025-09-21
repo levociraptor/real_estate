@@ -1,22 +1,19 @@
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch, mock_open
-from pathlib import Path
-from fastapi import UploadFile
-from starlette.responses import FileResponse
-from starlette.datastructures import Headers
+import datetime
 import io
 import uuid
-import datetime
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 
-from app.services.image_service import ImageService
+import pytest
+from fastapi import UploadFile
+from starlette.datastructures import Headers
+from starlette.responses import FileResponse
+
+from app.exceptions import (FileTooBig, ImageNotProcessedYetError,
+                            ImageSaveWithError, NotAllowedContentType)
 from app.models import ImageStatus
 from app.schemas.image_schemas import ImageSchema
-from app.exceptions import (
-    NotAllowedContentType,
-    FileTooBig,
-    ImageSaveWithError,
-    ImageNotProcessedYetError,
-)
+from app.services.image_service import ImageService
 
 
 @pytest.fixture
